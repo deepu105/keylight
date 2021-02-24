@@ -41,6 +41,16 @@ $ keylight command [command options]
 
 ```shell
 $ keylight switch [command options]
+
+# Examples
+
+$ keylight s # Switch on all lights, same as keylight s --on
+$ keylight s --off # Switch off all lights
+$ keylight s -b 15 # Switch on all lights, and set brightness to 15
+$ keylight s -b 100 -t 4000 # Switch on all lights, and set brightness to 100 and temperature to 4000 kelvin
+$ keylight s -b 25 -t 7000 --timeout 5 # Switch on all lights, and set brightness to 25 and temperature to 7000 kelvin. Wait 5 seconds before timing out
+$ keylight s -l E855 -b 25 -t 7000 # Switch on a specific light, and set brightness to 25 and temperature to 7000 kelvin.
+$ keylight s -l E855 -off # Switch off a specific light
 ```
 
 **Options**:
@@ -51,7 +61,7 @@ $ keylight switch [command options]
    --off                          Toggle light off (default: false)
    --brightness value, -b value   Set brightness of the lights (0 to 100) (default: 10)
    --temperature value, -t value  Set temperature of the lights in kelvin (3000 to 7000) (default: 3000)
-   --timeout value                Timeout in seconds (default: 2)
+   --timeout value                Timeout for light discovery in seconds (default: 2)
    --help, -h                     show help (default: false)
 ```
 

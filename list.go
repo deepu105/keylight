@@ -18,7 +18,7 @@ var listCommand = &cli.Command{
 		&cli.IntFlag{
 			Name:  "timeout",
 			Value: 2, // 2 seconds
-			Usage: "Timeout in seconds",
+			Usage: "Timeout for light discovery in seconds",
 		},
 	},
 	Action: listAction,
