@@ -14,7 +14,14 @@ var listCommand = &cli.Command{
 	Name:    "list",
 	Aliases: []string{"l"},
 	Usage:   "Discover and list available lights",
-	Action:  listAction,
+	Flags: []cli.Flag{
+		&cli.IntFlag{
+			Name:  "timeout",
+			Value: 2, // 2 seconds
+			Usage: "Timeout in seconds",
+		},
+	},
+	Action: listAction,
 }
 
 func listAction(c *cli.Context) error {
