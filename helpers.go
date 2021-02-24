@@ -10,22 +10,21 @@ import (
 	texttable "github.com/syohex/go-texttable"
 )
 
-func discoverLights() (<-chan *keylight.Device, context.CancelFunc, error) {
+func discoverLights() (<-chan *keylight.Device, error) {
 	discovery, err := keylight.NewDiscovery()
 	if err != nil {
 		log.Println("failed to initialize keylight discovery: ", err.Error())
-		return nil, nil, err
+		return nil, err
 	}
-	discoveryCtx, cancelFn := context.WithCancel(context.Background())
 
 	go func() {
-		err := discovery.Run(discoveryCtx)
+		err := discovery.Run(context.Background())
 		if err != nil {
 			log.Fatalln("Failed to discover lights: ", err.Error())
 		}
 	}()
 
-	return discovery.ResultsCh(), cancelFn, nil
+	return discovery.ResultsCh(), nil
 }
 
 func getPowerState(state int) string {
