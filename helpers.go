@@ -2,41 +2,30 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"net/http"
+	"log"
+	"math"
 
 	keylight "github.com/endocrimes/keylight-go"
-	"github.com/oleksandr/bonjour"
+	texttable "github.com/syohex/go-texttable"
 )
 
-func discoverLights(ctx context.Context) (chan *Light, error) {
-	resultsCh := make(chan *bonjour.ServiceEntry)
-	lightsCh := make(chan *Light, 5)
-
-	resolver, err := bonjour.NewResolver(nil)
+func discoverLights() (<-chan *keylight.Device, context.CancelFunc, error) {
+	discovery, err := keylight.NewDiscovery()
 	if err != nil {
-		return nil, err
+		log.Println("failed to initialize keylight discovery: ", err.Error())
+		return nil, nil, err
 	}
-	err = resolver.Browse("_elg._tcp", "local.", resultsCh)
-	if err != nil {
-		return nil, err
-	}
+	discoveryCtx, cancelFn := context.WithCancel(context.Background())
 
-	for {
-		select {
-		case <-ctx.Done():
-			close(resultsCh)
-			resolver.Exit <- true
-			return lightsCh, nil
-		case e := <-resultsCh:
-			lightsCh <- &Light{
-				Name:     e.Instance,
-				HostName: e.HostName,
-				Port:     e.Port,
-			}
+	go func() {
+		err := discovery.Run(discoveryCtx)
+		if err != nil {
+			log.Fatalln("Failed to discover lights: ", err.Error())
 		}
-	}
+	}()
+
+	return discovery.ResultsCh(), cancelFn, nil
 }
 
 func getPowerState(state int) string {
@@ -46,16 +35,27 @@ func getPowerState(state int) string {
 	return "on"
 }
 
-func fetchLightGroup(d *keylight.Device) (*keylight.LightGroup, error) {
-	o := &keylight.LightGroup{Lights: make([]*keylight.Light, 0)}
-	url := fmt.Sprintf("http://%s:%d/%s", d.DNSAddr, d.Port, "elgato/lights")
-	fmt.Println(url)
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
+func getPowerStateInt(state string) int {
+	if state == "off" {
+		return 0
 	}
-	defer resp.Body.Close()
+	return 1
+}
 
-	json.NewDecoder(resp.Body).Decode(o)
-	return o, err
+func addTableRow(tbl *texttable.TextTable, d *keylight.Device, group *keylight.LightGroup) {
+	tbl.AddRow(
+		d.Name,
+		getPowerState(group.Lights[0].On),
+		fmt.Sprintf("%d", group.Lights[0].Brightness),
+		fmt.Sprintf("%d (%d K)", group.Lights[0].Temperature, int(math.Round(1000000*math.Pow(float64(group.Lights[0].Temperature), -1)))),
+		fmt.Sprintf("%s:%d", d.DNSAddr, d.Port),
+	)
+}
+
+func drawTable(tbl *texttable.TextTable, count int) {
+	if count > 0 {
+		fmt.Println(tbl.Draw())
+	} else {
+		fmt.Println("Either timedout or no lights found! Try again")
+	}
 }
