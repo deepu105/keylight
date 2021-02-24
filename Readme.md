@@ -4,23 +4,46 @@ A simple command line tool written in Golang for controlling Elgato [Key
 Lights](https://www.elgato.com/en/gaming/key-light) and [Key Light
 Airs](https://www.elgato.com/en/gaming/key-light-air).
 
-## USAGE:
+## Install
+
+Clone this repo first
+
+```shell
+$ git clone https://github.com/deepu105/keylight.git
+$ cd keylight
+```
+
+Run Go Install
+
+```shell
+$ go install
+```
+
+or Build and move the binary to your PATH
+
+```shell
+$ go build -v .
+
+$ mv keylight /usr/local/bin/
+```
+
+## Usage:
 
 ```shell
 $ keylight command [command options]
 ```
 
-## COMMANDS:
+## Commands:
 
 ### `switch`, `s` : Switch on/off lights
 
-**USAGE**:
+**Usage**:
 
 ```shell
 $ keylight switch [command options]
 ```
 
-**OPTIONS**:
+**Options**:
 
 ```
    --light value, -l value        ID, example E859, for the light to control. If not provided all lights will be updated (default: "all")
@@ -36,20 +59,20 @@ Light id is the last part in the Name when you run `keylight list`
 
 ### `list`, `l` : Discover and list available lights
 
-**USAGE**:
+**Usage**:
 
 ```shell
 $ keylight list [command options]
 ```
 
-**OPTIONS**:
+**Options**:
 
 ```
    --timeout value                Timeout in seconds (default: 2)
    --help, -h                     show help (default: false)
 ```
 
-**OUTPUT**:
+**Output**:
 
 ```
 +-------------------------------+-------------+------------+--------------+---------------------------------------+
