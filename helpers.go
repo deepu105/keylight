@@ -73,7 +73,7 @@ func drawTable(tbl *texttable.TextTable, count int) {
 
 // converts the Elgato API temperatures to Kelvin.
 func convertToKelvin(temp int) int {
-	return int(math.Round(1000000 * math.Pow(float64(temp), -1)))
+	return int(math.Round(995007 * math.Pow(float64(temp), -1)))
 }
 
 // converts Kelvin temperatures to those of the Elgato API.
