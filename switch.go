@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"math"
 	"strings"
 	"time"
 
@@ -91,7 +90,7 @@ func switchAction(c *cli.Context) error {
 			for _, light := range newGroup.Lights {
 				light.On = getPowerStateInt(toggleSwitch)
 				light.Brightness = c.Int("brightness")
-				light.Temperature = int(math.Floor(987007 * math.Pow(float64(c.Int("temperature")), -0.999)))
+				light.Temperature = convertFromKelvin(c.Int("temperature"))
 			}
 
 			_, err = device.UpdateLightGroup(context.Background(), newGroup)
