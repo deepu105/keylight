@@ -44,6 +44,13 @@ func getPowerStateInt(state string) int {
 	return 1
 }
 
+// create a pretty table
+func createTable() *texttable.TextTable {
+	tbl := &texttable.TextTable{}
+	tbl.SetHeader("Name", "Power State", "Brightness", "Temperature", "Address")
+	return tbl
+}
+
 // add a row to Table to pretty print
 func addTableRow(tbl *texttable.TextTable, d *keylight.Device, group *keylight.LightGroup) {
 	tbl.AddRow(

@@ -6,7 +6,6 @@ import (
 	"log"
 	"time"
 
-	texttable "github.com/syohex/go-texttable"
 	"github.com/urfave/cli/v2"
 )
 
@@ -15,11 +14,7 @@ var listCommand = &cli.Command{
 	Aliases: []string{"l"},
 	Usage:   "Discover and list available lights",
 	Flags: []cli.Flag{
-		&cli.IntFlag{
-			Name:  "timeout",
-			Value: 2, // 2 seconds
-			Usage: "Timeout for light discovery in seconds",
-		},
+		&timeoutFlag,
 	},
 	Action: listAction,
 }
@@ -33,8 +28,7 @@ func listAction(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	tbl := &texttable.TextTable{}
-	tbl.SetHeader("Name", "Power State", "Brightness", "Temperature", "Address")
+	tbl := createTable()
 
 	count := 0
 	for {

@@ -7,12 +7,17 @@ import (
 	"strings"
 	"time"
 
-	texttable "github.com/syohex/go-texttable"
 	"github.com/urfave/cli/v2"
 )
 
 const toggleOn = "on"
 const toggleOff = "off"
+
+var timeoutFlag = cli.IntFlag{
+	Name:  "timeout",
+	Value: 2, // 2 seconds
+	Usage: "Timeout for light discovery in seconds",
+}
 
 var switchCommand = &cli.Command{
 	Name:    "switch",
@@ -39,11 +44,7 @@ var switchCommand = &cli.Command{
 			Aliases: []string{"t"},
 			Usage:   "Set temperature of the lights in kelvin (3000 to 7000)",
 		},
-		&cli.IntFlag{
-			Name:  "timeout",
-			Value: 2, // 2 seconds
-			Usage: "Timeout for light discovery in seconds",
-		},
+		&timeoutFlag,
 	},
 	Action: switchAction,
 }
@@ -64,8 +65,7 @@ func switchAction(c *cli.Context) error {
 		return err
 	}
 
-	tbl := &texttable.TextTable{}
-	tbl.SetHeader("Name", "Power State", "Brightness", "Temperature", "Address")
+	tbl := createTable()
 
 	count := 0
 	for {
