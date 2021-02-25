@@ -6,6 +6,12 @@ Airs](https://www.elgato.com/en/gaming/key-light-air).
 
 ## Install
 
+```
+$ go get github.com/deepu105/keylight
+```
+
+OR
+
 Clone this repo first
 
 ```shell
