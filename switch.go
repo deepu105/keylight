@@ -11,7 +11,6 @@ import (
 )
 
 const toggleOn = "on"
-const toggleOff = "off"
 
 var timeoutFlag = cli.IntFlag{
 	Name:  "timeout",
@@ -22,7 +21,7 @@ var timeoutFlag = cli.IntFlag{
 var switchCommand = &cli.Command{
 	Name:    "switch",
 	Aliases: []string{"s"},
-	Usage:   "Switch on/off lights",
+	Usage:   "Toggle the light switch",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "light",
@@ -30,17 +29,20 @@ var switchCommand = &cli.Command{
 			Value:   "all",
 			Usage:   "ID, example E859, for the light to control. If not provided all lights will be updated",
 		},
-		&cli.BoolFlag{Name: toggleOn, Usage: "Toggle light on"},
-		&cli.BoolFlag{Name: toggleOff, Usage: "Toggle light off"},
+		&cli.BoolFlag{
+			Name:    toggleOn,
+			Aliases: []string{"o"},
+			Usage:   "Switch light on. If not provided the light power state will be toggled",
+		},
 		&cli.IntFlag{
 			Name:    "brightness",
 			Aliases: []string{"b"},
-			Value:   10,
+			Value:   -1,
 			Usage:   "Set brightness of the lights (0 to 100)",
 		},
 		&cli.IntFlag{
 			Name:    "temperature",
-			Value:   3000, // minimum of 331 (~3000k)
+			Value:   -1,
 			Aliases: []string{"t"},
 			Usage:   "Set temperature of the lights in kelvin (3000 to 7000)",
 		},
@@ -51,14 +53,12 @@ var switchCommand = &cli.Command{
 
 func switchAction(c *cli.Context) error {
 	timeout := time.Duration(c.Int("timeout")) * time.Second
-
-	toggleSwitch := toggleOn
-	if c.Bool("off") {
-		toggleSwitch = toggleOff
-	}
+	brightness := c.Int("brightness")
+	temperature := c.Int("temperature")
+	toggleSwitchOn := c.Bool("on")
 	lightID := c.String("light")
 
-	fmt.Printf("Command: Switch - lights: %s, toggle: %s \n", lightID, toggleSwitch)
+	fmt.Printf("Command: Switch - lights: %s, toggleOn: %v \n", lightID, toggleSwitchOn)
 
 	devicesCh, err := discoverLights()
 	if err != nil {
@@ -66,8 +66,8 @@ func switchAction(c *cli.Context) error {
 	}
 
 	tbl := createTable()
-
 	count := 0
+
 	for {
 		select {
 		case device := <-devicesCh:
@@ -88,9 +88,13 @@ func switchAction(c *cli.Context) error {
 			newGroup := group.Copy()
 
 			for _, light := range newGroup.Lights {
-				light.On = getPowerStateInt(toggleSwitch)
-				light.Brightness = c.Int("brightness")
-				light.Temperature = convertFromKelvin(c.Int("temperature"))
+				light.On = togglePowerState(toggleSwitchOn, light.On)
+				if brightness > -1 {
+					light.Brightness = brightness
+				}
+				if temperature > -1 {
+					light.Temperature = convertFromKelvin(temperature)
+				}
 			}
 
 			_, err = device.UpdateLightGroup(context.Background(), newGroup)

@@ -36,12 +36,13 @@ func getPowerState(state int) string {
 	return "on"
 }
 
-// convert power state from string to int
-func getPowerStateInt(state string) int {
-	if state == "off" {
-		return 0
+// toggle the power state
+func togglePowerState(toggleSwitchOn bool, lightOn int) int {
+	if toggleSwitchOn || lightOn == 0 {
+		return 1
 	}
-	return 1
+
+	return 0
 }
 
 // create a pretty table
