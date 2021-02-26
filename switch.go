@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	keylight "github.com/endocrimes/keylight-go"
 	"github.com/urfave/cli/v2"
 )
 
@@ -32,7 +33,7 @@ var switchCommand = &cli.Command{
 		&cli.BoolFlag{
 			Name:    toggleOn,
 			Aliases: []string{"o"},
-			Usage:   "Switch light on. If not provided the light power state will be toggled",
+			Usage:   "Switch light on. If not provided the light power state will be toggled based on last state",
 		},
 		&cli.IntFlag{
 			Name:    "brightness",
@@ -46,17 +47,49 @@ var switchCommand = &cli.Command{
 			Aliases: []string{"t"},
 			Usage:   "Set temperature of the lights in kelvin (3000 to 7000)",
 		},
+		&cli.StringFlag{
+			Name:    "preset",
+			Aliases: []string{"p"},
+			Usage:   fmt.Sprintf("Switch on and set a preset temperature and brigtness. Values: %v", presetKeys()),
+		},
 		&timeoutFlag,
 	},
 	Action: switchAction,
 }
 
+var presets = map[string]keylight.Light{
+	"warm":       {Temperature: 3000, Brightness: 10},
+	"warm-50":    {Temperature: 3000, Brightness: 50},
+	"warm-100":   {Temperature: 3000, Brightness: 100},
+	"cool":       {Temperature: 7000, Brightness: 10},
+	"cool-50":    {Temperature: 7000, Brightness: 50},
+	"cool-100":   {Temperature: 7000, Brightness: 100},
+	"normal":     {Temperature: 5000, Brightness: 10},
+	"normal-50":  {Temperature: 5000, Brightness: 50},
+	"normal-100": {Temperature: 5000, Brightness: 100},
+}
+
+func presetKeys() []string {
+	keys := make([]string, 0, len(presets))
+	for k := range presets {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
 func switchAction(c *cli.Context) error {
-	timeout := time.Duration(c.Int("timeout")) * time.Second
+	lightID := c.String("light")
+	toggleSwitchOn := c.Bool("on")
 	brightness := c.Int("brightness")
 	temperature := c.Int("temperature")
-	toggleSwitchOn := c.Bool("on")
-	lightID := c.String("light")
+	preset := c.String("preset")
+	timeout := time.Duration(c.Int("timeout")) * time.Second
+
+	if preset != "" {
+		toggleSwitchOn = true
+		brightness = presets[preset].Brightness
+		temperature = presets[preset].Temperature
+	}
 
 	fmt.Printf("Command: Switch - lights: %s, toggleOn: %v \n", lightID, toggleSwitchOn)
 

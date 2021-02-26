@@ -41,34 +41,39 @@ $ keylight command [command options]
 
 ## Commands:
 
-### `switch`, `s` : Switch on/off lights
+### `switch`, `s` : Toggle the light switch
 
 **Usage**:
 
 ```shell
 $ keylight switch [command options]
+# or
+$ keylight s [command options]
 
 # Examples
 
-$ keylight s # Switch on all lights, same as keylight s --on
-$ keylight s --off # Switch off all lights
-$ keylight s -b 15 # Switch on all lights, and set brightness to 15
-$ keylight s -b 100 -t 4000 # Switch on all lights, and set brightness to 100 and temperature to 4000 kelvin
-$ keylight s -b 25 -t 7000 --timeout 5 # Switch on all lights, and set brightness to 25 and temperature to 7000 kelvin. Wait 5 seconds before timing out
-$ keylight s -l E855 -b 25 -t 7000 # Switch on a specific light, and set brightness to 25 and temperature to 7000 kelvin.
-$ keylight s -l E855 -off # Switch off a specific light
+$ keylight s # Toggle all lights ON or OFF
+$ keylight s --on # Switch on all lights. Same as `keylight s -o`
+$ keylight s -o -b 15 # Switch on all lights, and set brightness to 15
+$ keylight s -o -b 100 -t 4000 # Switch on all lights, and set brightness to 100 and temperature to 4000 kelvin
+$ keylight s -o -b 25 -t 7000 --timeout 5 # Switch on all lights, and set brightness to 25 and temperature to 7000 kelvin. Wait 5 seconds before timing out
+$ keylight s -o -l E855 -b 25 -t 7000 # Switch on a specific light, and set brightness to 25 and temperature to 7000 kelvin.
+$ keylight s -o -l E855 # Switch on a specific light
+$ keylight s -p warm # Switch on a specific preset
 ```
 
 **Options**:
 
 ```
    --light value, -l value        ID, example E859, for the light to control. If not provided all lights will be updated (default: "all")
-   --on                           Toggle light on (default: false)
-   --off                          Toggle light off (default: false)
-   --brightness value, -b value   Set brightness of the lights (0 to 100) (default: 10)
-   --temperature value, -t value  Set temperature of the lights in kelvin (3000 to 7000) (default: 3000)
+   --on, -o                       Switch light on. If not provided the light power state will be toggled based on last state (default: false)
+   --brightness value, -b value   Set brightness of the lights (0 to 100) (default: -1)
+   --temperature value, -t value  Set temperature of the lights in kelvin (3000 to 7000) (default: -1)
+   --preset value, -p value       Switch on and set a preset temperature and brigtness. 
+                                  Values: [warm warm-50 warm-100 cool cool-50 cool-100 normal normal-50 normal-100]
    --timeout value                Timeout for light discovery in seconds (default: 2)
    --help, -h                     show help (default: false)
+
 ```
 
 Light id is the last part in the Name when you run `keylight list`
@@ -79,6 +84,8 @@ Light id is the last part in the Name when you run `keylight list`
 
 ```shell
 $ keylight list [command options]
+# or
+$ keylight l [command options]
 ```
 
 **Options**:
